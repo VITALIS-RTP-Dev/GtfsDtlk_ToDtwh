@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using GtfsDtlk_ToDtwh.Domain.Datalake;
-using GtfsDtlk_ToDtwh.Domain.Datawarehouse;
+﻿using GtfsDtlk_ToDtwh.Domain.Datalake;
 using Serilog.Core;
 
 namespace GtfsDtlk_ToDtwh.Persistence;
@@ -10,12 +8,12 @@ namespace GtfsDtlk_ToDtwh.Persistence;
 /// </summary>
 public static class DtlkSqlManager
 {
-
     //***** AGENCES ****//
+
     #region AGENCES
 
     /// <summary>
-    /// Gets all agences.
+    ///     Gets all agences.
     /// </summary>
     /// <param name="context">The DTL context.</param>
     /// <param name="log">The log.</param>
@@ -26,11 +24,12 @@ public static class DtlkSqlManager
 
         try
         {
-            const string query = $"SELECT DISTINCT \"Id\",\"Nom\",\"Url\",\"Timezone\",\"Langue\",\"Telephone\" FROM gtfs_agence ORDER BY \"Id\";";
+            const string query =
+                "SELECT DISTINCT \"Id\",\"Nom\",\"Url\",\"Timezone\",\"Langue\",\"Telephone\" FROM gtfs_agence ORDER BY \"Id\";";
 
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
-                results.AddRange(rows.Select(row => new DtlkAgence()
+                results.AddRange(rows.Select(row => new DtlkAgence
                 {
                     Id = Convert.ToInt64(row[0]),
                     Nom = row[1],
@@ -47,12 +46,15 @@ public static class DtlkSqlManager
 
         return results;
     }
+
     #endregion
 
     //***** LIGNES *****//
-    #region LIGNES    
+
+    #region LIGNES
+
     /// <summary>
-    /// Gets all lignes.
+    ///     Gets all lignes.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -63,10 +65,11 @@ public static class DtlkSqlManager
 
         try
         {
-            const string query = $"SELECT DISTINCT \"Id\",\"Agence_Id\",\"Libelle1\",\"Libelle2\",\"Description\",\"Type\",\"Couleur\",\"CouleurTexte\" FROM \"gtfs_ligne\" ORDER BY \"Id\";";
+            const string query =
+                "SELECT DISTINCT \"Id\",\"Agence_Id\",\"Libelle1\",\"Libelle2\",\"Description\",\"Type\",\"Couleur\",\"CouleurTexte\" FROM \"gtfs_ligne\" ORDER BY \"Id\";";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
-                results.AddRange(rows.Select(row => new DtlkLigne()
+                results.AddRange(rows.Select(row => new DtlkLigne
                 {
                     Id = Convert.ToInt64(row[0]),
                     AgenceId = Convert.ToInt64(row[1]),
@@ -82,16 +85,95 @@ public static class DtlkSqlManager
         {
             log.Error(ex, ex.Message);
         }
-        
+
         return results;
     }
+
+    #endregion
+
+    //***** HABILLAGE *****//
+
+    #region HABILLAGE
+
+    /// <summary>
+    ///     Gets all habillages.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="log">The log.</param>
+    /// <returns></returns>
+    public static List<DtlkHabillage> GetAllHabillages(PostgreSqlContext context, Logger log)
+    {
+        var results = new List<DtlkHabillage>();
+
+        try
+        {
+            const string query =
+                "SELECT DISTINCT \"Voyage_Id\",\"Arret_Id\",\"Depart\",\"Arrivee\",\"Sequence_Arret\",\"Type_Montee\",\"Type_Descente\",\"Distance_Voyage\" FROM \"gtfs_habillage\";";
+            var rows = context.SelectQuery(query, log).Result;
+            if (rows.Count != 0)
+                results.AddRange(rows.Select(row => new DtlkHabillage
+                {
+                    VoyageId = Convert.ToInt64(row[0]),
+                    ArretId = Convert.ToInt64(row[1]),
+                    Depart = TimeOnly.Parse(row[2]),
+                    Arrivee = TimeOnly.Parse(row[3]),
+                    SequenceArret = row[4],
+                    TypeMontee = row[5],
+                    TypeDescente = row[6],
+                    DistanceVoyage = row[7]
+                }));
+        }
+        catch (Exception ex)
+        {
+            log.Error(ex, ex.Message);
+        }
+
+        return results;
+    }
+
+    #endregion
+
+    //***** VOYAGE *****//
+
+    #region VOYAGE
+
+    public static List<DtlkVoyage> GetAllVoyages(PostgreSqlContext context, Logger log)
+    {
+        var results = new List<DtlkVoyage>();
+
+        try
+        {
+            const string query =
+                "SELECT DISTINCT \"Id\",\"Ligne_Id\",\"Libelle_Affichage\",\"Direction_Id\",\"Bloc_Id\",\"Graphicage_Id\" FROM \"gtfs_voyage\" ORDER BY \"Id\";";
+            var rows = context.SelectQuery(query, log).Result;
+            if (rows.Count != 0)
+                results.AddRange(rows.Select(row => new DtlkVoyage
+                {
+                    Id = Convert.ToInt64(row[0]),
+                    LigneId = Convert.ToInt64(row[1]),
+                    LibelleAffichage = row[2],
+                    DirectionId = row[3],
+                    BlocId = row[4],
+                    GraphicageId = Convert.ToInt64(row[5])
+                }));
+        }
+        catch (Exception ex)
+        {
+            log.Error(ex, ex.Message);
+        }
+
+        return results;
+    }
+
     #endregion
 
 
     //***** ARRETS *****//
-    #region ARRETS    
+
+    #region ARRETS
+
     /// <summary>
-    /// Gets all arrets.
+    ///     Gets all arrets.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -102,10 +184,11 @@ public static class DtlkSqlManager
 
         try
         {
-            const string query = $"SELECT DISTINCT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret\" FROM \"gtfs_arret\" ORDER BY \"Parent_Arret\" DESC;";
+            const string query =
+                "SELECT DISTINCT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret\" FROM \"gtfs_arret\" ORDER BY \"Parent_Arret\" DESC;";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
-                results.AddRange(rows.Select(row => new DtlkArret()
+                results.AddRange(rows.Select(row => new DtlkArret
                 {
                     Id = Convert.ToInt64(row[0]),
                     Code = row[1],
@@ -125,12 +208,13 @@ public static class DtlkSqlManager
         return results;
     }
 
-    public static DtlkArret GetArretByCode(PostgreSqlContext context, Logger log,string code)
+    public static DtlkArret GetArretByCode(PostgreSqlContext context, Logger log, string code)
     {
         var result = new DtlkArret();
         try
         {
-            var query = $"SELECT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret\" FROM \"arret\" WHERE \"Code\"='{code}' LIMIT 1;";
+            var query =
+                $"SELECT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret\" FROM \"arret\" WHERE \"Code\"='{code}' LIMIT 1;";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
                 foreach (var row in rows)
@@ -149,7 +233,9 @@ public static class DtlkSqlManager
         {
             log.Error(ex, ex.Message);
         }
+
         return result;
     }
+
     #endregion
 }

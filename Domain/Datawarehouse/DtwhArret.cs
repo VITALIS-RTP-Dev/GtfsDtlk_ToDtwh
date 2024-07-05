@@ -5,7 +5,7 @@ namespace GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 public class DtwhArret
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DtwhArret"/> class.
+    ///     Initializes a new instance of the <see cref="DtwhArret" /> class.
     /// </summary>
     public DtwhArret()
     {
@@ -20,7 +20,7 @@ public class DtwhArret
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DtwhArret"/> class.
+    ///     Initializes a new instance of the <see cref="DtwhArret" /> class.
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <param name="code">The code.</param>
@@ -53,7 +53,7 @@ public class DtwhArret
     public long ParentArretId { get; set; }
 
     /// <summary>
-    /// Empties this instance.
+    ///     Empties this instance.
     /// </summary>
     /// <returns></returns>
     public static DtwhArret Empty()
@@ -63,12 +63,11 @@ public class DtwhArret
 
     public void CompareAndCopy(DtlkArret arret)
     {
-        if (this.Code != arret.Code) this.Code = arret.Code;
-        if (this.Libelle != arret.Libelle) this.Libelle = arret.Libelle;
-        if (this.Description != arret.Description) this.Description = arret.Description;
-        if (this.Type != Convert.ToInt32(arret.Type)) this.Type = Convert.ToInt32(arret.Type);
-        if (this.Latitude != arret.Latitude) this.Latitude = arret.Latitude;
-        if (this.Longitude != arret.Longitude) this.Longitude = arret.Latitude;
+        if (Code != arret.Code) Code = arret.Code;
+        if (Libelle != arret.Libelle) Libelle = arret.Libelle;
+        if (Description != arret.Description) Description = arret.Description;
+        if (Type != Convert.ToInt32(arret.Type)) Type = Convert.ToInt32(arret.Type);
+        if (Latitude != arret.Latitude) Latitude = arret.Latitude;
+        if (Longitude != arret.Longitude) Longitude = arret.Latitude;
     }
-
 }

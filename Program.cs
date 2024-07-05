@@ -1,6 +1,4 @@
 ﻿using System.Configuration;
-using System.Net.Http.Headers;
-using System.Runtime;
 using System.Text;
 using GtfsDtlk_ToDtwh.Domain.Datalake;
 using GtfsDtlk_ToDtwh.Domain.Datawarehouse;
@@ -49,13 +47,12 @@ public static class Program
         var log = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.File(logFilePath.Value, rollingInterval: RollingInterval.Day)
-            .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
+            .WriteTo.Console(LogEventLevel.Information)
             .CreateLogger();
 
         // Start process
         try
         {
-
             /***** CONTEXTES *****/
             var dtwhDbSettings = new DbSettings
             {
@@ -80,80 +77,109 @@ public static class Program
             log.Information($"///***** Started cycle : {DateTime.Now} *****///");
 
             //***** AGENCES *****//
-            log.Information($"Gestion des lignes types");
+            log.Information("Gestion des lignes types");
             // récupération de la liste du datalake et du datawarehouse
-            var dtlkAgences = DtlkSqlManager.GetAllAgences(dtlkContext, log);
-            var dtwhLigneTypes = DtwhSqlManager.GetAllLigneTypes(dtwhContext, log);
-            // boucle sur la liste du datalake
-            foreach (var dtlkAgence in dtlkAgences)
+            var agencesFromDtlk = DtlkSqlManager.GetAllAgences(dtlkContext, log);
+            var ligneTypesFromDb = DtwhSqlManager.GetAllLigneTypes(dtwhContext, log);
+
+            foreach (var agenceFromDtlk in agencesFromDtlk)
             {
                 // check if exist in datawarehouse
-                var dtwhLigneType = dtwhLigneTypes.Find(x => x.Code.Equals(dtlkAgence.Id))??DtwhLigneType.Empty();
-                // if exist > Update
-                if (dtwhLigneType.Id != 0)
-                {
-                    dtwhLigneType.CompareAndCopy(dtlkAgence);
-                    DtwhSqlManager.UpdateLigneType(dtwhContext,log,dtwhLigneType);
-                }
+                var ligneTypeFromDb = ligneTypesFromDb.Find(x => x.Code.Equals(agenceFromDtlk.Id)) ?? DtwhLigneType.Empty();
                 // if not exist > Create
+                if (ligneTypeFromDb.Id == 0)
+                {
+                    // CREATE
+                    DtwhSqlManager.CreateLigneType(dtwhContext, log, agenceFromDtlk);
+                }
+                // if exist > Update
                 else
                 {
-                    dtwhLigneTypes.Add(DtwhSqlManager.CreateLigneType(dtwhContext, log, dtlkAgence));
+                    if (!agenceFromDtlk.Equals(ligneTypeFromDb))
+                    {
+                        // UPDATE
+                        DtwhSqlManager.UpdateLigneType(dtwhContext, log, ligneTypeFromDb.Id, agenceFromDtlk);
+                    }
                 }
             }
 
+            // Reload Db
+            ligneTypesFromDb = DtwhSqlManager.GetAllLigneTypes(dtwhContext, log);
 
             //***** LIGNES *****//
-            log.Information($"Gestion des lignes");
+            log.Information("Gestion des lignes");
             // récupération de la liste du datalake
-            var dtlkLignes = DtlkSqlManager.GetAllLignes(dtlkContext,log);
-            var dtwhLignes = DtwhSqlManager.GetAllLignes(dtwhContext, log);
-            // boucle sur la liste du datalake
-            foreach (var dtlkLigne in dtlkLignes)
+            var lignesFromDtlk = DtlkSqlManager.GetAllLignes(dtlkContext, log);
+            var lignesFromDb = DtwhSqlManager.GetAllLignes(dtwhContext, log);
+
+            foreach (var ligneFromDtlk in lignesFromDtlk)
             {
                 // check if exist in datawarehouse
-                var dtwhLigne = dtwhLignes.Find(x => x.Code.Equals(dtlkLigne.Id))??DtwhLigne.Empty();
-                // if exist > Update
-                if (dtwhLigne.Id != 0)
-                {
-                    dtwhLigne.CompareAndCopy(dtlkLigne);
-                    DtwhSqlManager.UpdateLigne(dtwhContext,log,dtwhLigne);
-                }
+                var ligneFromDb = lignesFromDb.Find(x => x.Code.Equals(ligneFromDtlk.Id)) ?? DtwhLigne.Empty();
                 // if not exist > Create
+                if (ligneFromDb.Id == 0)
+                {
+                    var ligneTypeId = ligneTypesFromDb.Find(x => x.Code.Equals(ligneFromDtlk.Id))!.Id;
+                    // CREATE
+                    DtwhSqlManager.CreateLigne(dtwhContext, log, ligneFromDtlk, ligneTypeId);
+                }
+                // if exist > Update
                 else
                 {
-                    dtwhLignes.Add(DtwhSqlManager.CreateLigne(dtwhContext,log,dtlkLigne,dtwhLigneTypes.Find(x => x.Code.Equals(dtlkLigne.AgenceId))!.Id));
+                    if (!ligneFromDtlk.Equals(ligneFromDb))
+                    {
+                        DtwhSqlManager.UpdateLigne(dtwhContext, log, ligneFromDb.Id, ligneFromDb.LigneTypeId, ligneFromDtlk);
+                    }
                 }
             }
+
+            //Reload DB
+            lignesFromDb = DtwhSqlManager.GetAllLignes(dtwhContext, log);
 
             //***** ARRETS *****
-            log.Information($"Gestion des arrets");
+            log.Information("Gestion des arrets");
             // récupération de la liste du datalake
-            var dtlkArrets = DtlkSqlManager.GetAllArrets(dtlkContext, log);
-            var dtwhArrets = DtwhSqlManager.GetAllArrets(dtwhContext, log);
-         // boucle sur la liste du datalake
-            foreach (var dtlkArret in dtlkArrets)
+            var arretsFromDtlk = DtlkSqlManager.GetAllArrets(dtlkContext, log);
+            var arretsFromDb = DtwhSqlManager.GetAllArrets(dtwhContext, log);
+            // boucle sur la liste du datalake
+            foreach (var arretFromDtlk in arretsFromDtlk)
             {
-                var parentDtlkArret = dtlkArrets.Find(arret => arret.Id.Equals(dtlkArret.ParentArretId))??DtlkArret.Empty();
-                var parentDtwhArret = dtwhArrets.Find(arret =>
-                    arret.Code.Equals(parentDtlkArret.Code, StringComparison.Ordinal))??DtwhArret.Empty();
+                var parentArretFromDtlk = arretsFromDtlk.Find(arret => arret.Id.Equals(arretFromDtlk.ParentArretId)) ??
+                                      DtlkArret.Empty();
+                var parentDtwhArret = arretsFromDb.Find(arret =>
+                    arret.Code.Equals(parentArretFromDtlk.Code, StringComparison.Ordinal)) ?? DtwhArret.Empty();
+
                 // check if exist in datawarehouse
-                var dtwhArret = dtwhArrets.Find(x => x.Code.Equals(dtlkArret.Code)) ?? DtwhArret.Empty();
-                // if exist > Update
-                if (dtwhArret.Id != 0)
-                {
-                    dtwhArret.CompareAndCopy(dtlkArret);
-                    dtwhArret.ParentArretId = parentDtwhArret.Id;
-                    DtwhSqlManager.UpdateArret(dtwhContext, log, dtwhArret);
-                }
+                var arretFromDb = arretsFromDb.Find(x => x.Code.Equals(arretFromDtlk.Code)) ?? DtwhArret.Empty();
                 // if not exist > Create
+                if (arretFromDb.Id == 0)
+                {
+                    // CREATE
+                    arretsFromDb.Add(DtwhSqlManager.CreateArret(dtwhContext, log, arretFromDtlk, parentDtwhArret.Id));
+                }
+                // if exist > Update
                 else
                 {
-                    var newArret = DtwhSqlManager.CreateArret(dtwhContext, log, dtlkArret, parentDtwhArret.Id);
-                        dtwhArrets.Add(newArret);
+                    // UPDATE
+                    arretFromDb.CompareAndCopy(arretFromDtlk);
+                    arretFromDb.ParentArretId = parentDtwhArret.Id;
+                    DtwhSqlManager.UpdateArret(dtwhContext, log, arretFromDb);
                 }
-            }
 
+            }
+            // Manage Parents ID
+
+
+            //***** VOYAGE *****
+            log.Information("Gestion des voyages");
+            // récupération de la liste du datalake
+            var dtlkVoyages = DtlkSqlManager.GetAllVoyages(dtlkContext, log);
+
+
+            //***** HABILLAGE *****
+            log.Information("Gestion des habillages");
+            // récupération de la liste du datalake
+            var dtlkHabillages = DtlkSqlManager.GetAllHabillages(dtlkContext, log);
         }
         catch (Exception ex)
         {

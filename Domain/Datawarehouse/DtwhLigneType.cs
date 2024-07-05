@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using GtfsDtlk_ToDtwh.Domain.Datalake;
+﻿using GtfsDtlk_ToDtwh.Domain.Datalake;
 
 namespace GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 
@@ -45,16 +44,15 @@ public class DtwhLigneType
     }
 
     /// <summary>
-    /// Compares and copy.
+    ///     Compares and copy.
     /// </summary>
     /// <param name="agence">The agence.</param>
     public void CompareAndCopy(DtlkAgence agence)
     {
-        if (this.Code != agence.Id) this.Code = agence.Id;
-        if (this.Nom != agence.Nom) this.Nom = agence.Nom;
-        if (this.Telephone != agence.Telephone) this.Telephone = agence.Telephone;
-        if (this.Timezone != agence.Timezone) this.Timezone = agence.Timezone;
-        if (this.Url != agence.Url) this.Url = agence.Url;
-
+        if (Code != agence.Id) Code = agence.Id;
+        if (Nom != agence.Nom) Nom = agence.Nom;
+        if (Telephone != agence.Telephone) Telephone = agence.Telephone;
+        if (Timezone != agence.Timezone) Timezone = agence.Timezone;
+        if (Url != agence.Url) Url = agence.Url;
     }
 }

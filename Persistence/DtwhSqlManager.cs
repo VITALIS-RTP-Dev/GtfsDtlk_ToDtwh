@@ -1,7 +1,5 @@
-﻿using System.Globalization;
-using GtfsDtlk_ToDtwh.Domain.Datalake;
+﻿using GtfsDtlk_ToDtwh.Domain.Datalake;
 using GtfsDtlk_ToDtwh.Domain.Datawarehouse;
-using Serilog;
 using Serilog.Core;
 
 namespace GtfsDtlk_ToDtwh.Persistence;
@@ -12,10 +10,11 @@ namespace GtfsDtlk_ToDtwh.Persistence;
 public static class DtwhSqlManager
 {
     //***** LIGNE TYPE*****//
+
     #region LIGNE TYPE
 
     /// <summary>
-    /// Gets the ligne type by code.
+    ///     Gets the ligne type by code.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -27,7 +26,8 @@ public static class DtwhSqlManager
 
         try
         {
-            var query = $"SELECT \"Id\",\"Code\",\"Nom\",\"Url\",\"Timezone\",\"Telephone\" FROM \"ligne_type\" WHERE \"Code\" = '{code}' LIMIT 1;";
+            var query =
+                $"SELECT \"Id\",\"Code\",\"Nom\",\"Url\",\"Timezone\",\"Telephone\" FROM \"ligne_type\" WHERE \"Code\" = '{code}' LIMIT 1;";
 
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
@@ -50,7 +50,7 @@ public static class DtwhSqlManager
     }
 
     /// <summary>
-    /// Gets the all ligne types.
+    ///     Gets the all ligne types.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -61,7 +61,8 @@ public static class DtwhSqlManager
 
         try
         {
-            const string query = $"SELECT \"Id\",\"Code\",\"Nom\",\"Url\",\"Timezone\",\"Telephone\" FROM \"ligne_type\" ORDER BY \"Id\";";
+            const string query =
+                "SELECT \"Id\",\"Code\",\"Nom\",\"Url\",\"Timezone\",\"Telephone\" FROM \"ligne_type\" ORDER BY \"Id\";";
 
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
@@ -82,7 +83,7 @@ public static class DtwhSqlManager
     }
 
     /// <summary>
-    /// Creates the type of the ligne.
+    ///     Creates the type of the ligne.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -95,7 +96,7 @@ public static class DtwhSqlManager
         {
             var query = $"INSERT INTO \"ligne_type\"(\"Code\",\"Nom\",\"Url\",\"Timezone\",\"Telephone\") " +
                         $"VALUES({agence.Id}," +
-                        $"'{agence.Nom.Replace("'","''")}'," +
+                        $"'{agence.Nom.Replace("'", "''")}'," +
                         $"'{agence.Url}'," +
                         $"'{agence.Timezone}'," +
                         $"'{agence.Telephone}');";
@@ -103,13 +104,14 @@ public static class DtwhSqlManager
             context.CommandQuery(query, log);
             Thread.Sleep(50);
             var code = agence.Id;
-            result = GetLigneTypeByCode(context, log, code );
+            result = GetLigneTypeByCode(context, log, code);
             log.Information($"Création de la Ligne Type {result.Id} - {result.Nom}");
         }
         catch (Exception ex)
         {
             log.Error(ex, ex.Message);
         }
+
         return result;
     }
 
@@ -118,21 +120,22 @@ public static class DtwhSqlManager
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
-    /// <param name="ligneType">Type of the ligne.</param>
-    public static void UpdateLigneType(PostgreSqlContext context, Logger log, DtwhLigneType ligneType)
+    /// <param name="ligneTypeId">The ligne type identifier.</param>
+    /// <param name="agence">The agence.</param>
+    public static void UpdateLigneType(PostgreSqlContext context, Logger log,long ligneTypeId, DtlkAgence agence)
     {
         try
         {
             var query = $"UPDATE \"ligne_type\" SET " +
-                        $"\"Code\"={ligneType.Code}," +
-                        $"\"Nom\"='{ligneType.Nom.Replace("'","''")}'," +
-                        $"\"Url\"='{ligneType.Url}'," +
-                        $"\"Timezone\"='{ligneType.Timezone}'," +
-                        $"\"Telephone\"='{ligneType.Telephone}' " +
-                        $"WHERE \"Id\"={ligneType.Id};";
+                        $"\"Code\"={agence.Id}," +
+                        $"\"Nom\"='{agence.Nom.Replace("'", "''")}'," +
+                        $"\"Url\"='{agence.Url}'," +
+                        $"\"Timezone\"='{agence.Timezone}'," +
+                        $"\"Telephone\"='{agence.Telephone}' " +
+                        $"WHERE \"Id\"={ligneTypeId};";
 
             context.CommandQuery(query, log);
-            log.Information($"Mise à jour de la Ligne Type {ligneType.Id} - {ligneType.Nom}");
+            log.Information($"Mise à jour de la Ligne Type {ligneTypeId} - {agence.Nom}");
         }
         catch (Exception ex)
         {
@@ -143,9 +146,11 @@ public static class DtwhSqlManager
     #endregion
 
     //***** LIGNES *****//
-    #region LIGNES      
+
+    #region LIGNES
+
     /// <summary>
-    /// Gets the ligne by code.
+    ///     Gets the ligne by code.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -157,13 +162,12 @@ public static class DtwhSqlManager
 
         try
         {
-            var query = $"SELECT  \"Id\",\"Code\",\"Ligne_Type_Id\",\"Libelle1\",\"Libelle2\",\"Description\",\"Type\",\"Couleur\",\"Couleur_Texte\" FROM \"ligne\" WHERE \"Code\" = {code} LIMIT 1;";
-            
+            var query =
+                $"SELECT  \"Id\",\"Code\",\"Ligne_Type_Id\",\"Libelle1\",\"Libelle2\",\"Description\",\"Type\",\"Couleur\",\"Couleur_Texte\" FROM \"ligne\" WHERE \"Code\" = {code} LIMIT 1;";
+
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
-            {
                 foreach (var row in rows)
-                {
                     result = new DtwhLigne(Convert.ToInt64(row[0]),
                         Convert.ToInt32(row[1]),
                         Convert.ToInt64(row[2]),
@@ -173,8 +177,6 @@ public static class DtwhSqlManager
                         row[6],
                         row[7],
                         row[8]);
-                }
-            }
         }
         catch (Exception ex)
         {
@@ -185,7 +187,7 @@ public static class DtwhSqlManager
     }
 
     /// <summary>
-    /// Gets all lignes.
+    ///     Gets all lignes.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
@@ -196,7 +198,8 @@ public static class DtwhSqlManager
 
         try
         {
-            const string query = $"SELECT \"Id\",\"Code\",\"Ligne_Type_Id\",\"Libelle1\",\"Libelle2\",\"Description\",\"Type\",\"Couleur\",\"Couleur_Texte\" FROM \"ligne\" ORDER BY \"Id\";";
+            const string query =
+                "SELECT \"Id\",\"Code\",\"Ligne_Type_Id\",\"Libelle1\",\"Libelle2\",\"Description\",\"Type\",\"Couleur\",\"Couleur_Texte\" FROM \"ligne\" ORDER BY \"Id\";";
 
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
@@ -225,8 +228,9 @@ public static class DtwhSqlManager
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
     /// <param name="ligne">The ligne.</param>
+    /// <param name="ligneTypeId">The ligne type identifier.</param>
     /// <returns></returns>
-    public static DtwhLigne CreateLigne(PostgreSqlContext context, Logger log, DtlkLigne ligne,long dtwhLigneTypeId)
+    public static void CreateLigne(PostgreSqlContext context, Logger log, DtlkLigne ligne, long ligneTypeId)
     {
         var result = DtwhLigne.Empty();
         try
@@ -241,7 +245,7 @@ public static class DtwhSqlManager
                 $"\"Couleur\"," +
                 $"\"Couleur_Texte\") " +
                 $"VALUES({ligne.Id}," +
-                $"{dtwhLigneTypeId}," +
+                $"{ligneTypeId}," +
                 $"'{ligne.Libelle1.Replace("'", "''")}'," +
                 $"'{ligne.Libelle2.Replace("'", "''")}'," +
                 $"'{ligne.Description.Replace("'", "''")}'," +
@@ -250,15 +254,12 @@ public static class DtwhSqlManager
                 $"'{ligne.CouleurTexte.Replace("'", "''")}');";
 
             context.CommandQuery(query, log);
-            Thread.Sleep(50);
-            result = GetLigneByCode(context, log, ligne.Id);
             log.Information($"Création de la Ligne {result.Libelle1} - {result.Libelle2}");
         }
         catch (Exception ex)
         {
             log.Error(ex, ex.Message);
         }
-        return result;
     }
 
     /// <summary>
@@ -266,20 +267,22 @@ public static class DtwhSqlManager
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
+    /// <param name="ligneId">The ligne identifier.</param>
+    /// <param name="ligneTypeId">The ligne type identifier.</param>
     /// <param name="ligne">The ligne.</param>
-    public static void UpdateLigne(PostgreSqlContext context, Logger log, DtwhLigne ligne)
+    public static void UpdateLigne(PostgreSqlContext context, Logger log, long ligneId,long ligneTypeId, DtlkLigne ligne)
     {
         try
         {
             var query = $"UPDATE \"ligne\" SET " +
-                        $"\"Code\"={ligne.Code}," +
-                        $"\"Ligne_Type_Id\"={ligne.LigneTypeId}," +
-                        $"\"Libelle1\"='{ligne.Libelle1.Replace("'","''")}'," +
-                        $"\"Libelle2\"='{ligne.Libelle2.Replace("'","''")}'," +
-                        $"\"Description\"='{ligne.Description.Replace("'","''")}'," +
-                        $"\"Type\"='{ligne.Type.Replace("'","''")}'," +
-                        $"\"Couleur\"='{ligne.Couleur.Replace("'","''")}'," +
-                        $"\"Couleur_Texte\"='{ligne.CouleurTexte.Replace("'","''")}' WHERE \"Id\" = {ligne.Id};";
+                        $"\"Code\"={ligne.Id}," +
+                        $"\"Ligne_Type_Id\"={ligneTypeId}," +
+                        $"\"Libelle1\"='{ligne.Libelle1.Replace("'", "''")}'," +
+                        $"\"Libelle2\"='{ligne.Libelle2.Replace("'", "''")}'," +
+                        $"\"Description\"='{ligne.Description.Replace("'", "''")}'," +
+                        $"\"Type\"='{ligne.Type.Replace("'", "''")}'," +
+                        $"\"Couleur\"='{ligne.Couleur.Replace("'", "''")}'," +
+                        $"\"Couleur_Texte\"='{ligne.CouleurTexte.Replace("'", "''")}' WHERE \"Id\" = {ligneId};";
 
             context.CommandQuery(query, log);
             log.Information($"Mise à jour de la Ligne {ligne.Libelle1} - {ligne.Libelle2}");
@@ -289,16 +292,20 @@ public static class DtwhSqlManager
             log.Error(ex, ex.Message);
         }
     }
+
     #endregion
 
     //***** ARRETS *****//
+
     #region ARRETS
+
     public static DtwhArret GetArretByCode(PostgreSqlContext context, Logger log, string code)
     {
         var result = new DtwhArret();
         try
         {
-            var query = $"SELECT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\" FROM \"arret\" WHERE \"Code\"='{code}' LIMIT 1;";
+            var query =
+                $"SELECT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\" FROM \"arret\" WHERE \"Code\"='{code}' LIMIT 1;";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
                 foreach (var row in rows)
@@ -317,6 +324,7 @@ public static class DtwhSqlManager
         {
             log.Error(ex, ex.Message);
         }
+
         return result;
     }
 
@@ -325,7 +333,8 @@ public static class DtwhSqlManager
         var results = new List<DtwhArret>();
         try
         {
-            const string query = $"SELECT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\" FROM \"arret\";";
+            const string query =
+                "SELECT \"Id\",\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\" FROM \"arret\";";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
                 results.AddRange(rows.Select(row => new DtwhArret
@@ -344,22 +353,24 @@ public static class DtwhSqlManager
         {
             log.Error(ex, ex.Message);
         }
+
         return results;
     }
 
-    public static DtwhArret CreateArret(PostgreSqlContext context, Logger log,DtlkArret arret,long parentId)
+    public static DtwhArret CreateArret(PostgreSqlContext context, Logger log, DtlkArret arret, long parentId)
     {
         var result = DtwhArret.Empty();
         try
         {
-            var query = $"INSERT INTO \"arret\"(\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\") " +
-                        $"VALUES('{arret.Code}'," +
-                        $"'{arret.Libelle.Replace("'", "''")}'," +
-                        $"'{arret.Description.Replace("'","''")}'," +
-                        $"'{arret.Latitude}'," +
-                        $"'{arret.Longitude}'," +
-                        $"'{arret.Type}'," +
-                        $"'{parentId}') WHERE \"Id\"='{arret.Id}';";
+            var query =
+                $"INSERT INTO \"arret\"(\"Code\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\") " +
+                $"VALUES('{arret.Code}'," +
+                $"'{arret.Libelle.Replace("'", "''")}'," +
+                $"'{arret.Description.Replace("'", "''")}'," +
+                $"'{arret.Latitude}'," +
+                $"'{arret.Longitude}'," +
+                $"'{arret.Type}'," +
+                $"'{parentId}') WHERE \"Id\"='{arret.Id}';";
 
             context.CommandQuery(query, log);
             Thread.Sleep(50);
@@ -370,6 +381,7 @@ public static class DtwhSqlManager
         {
             log.Error(ex, ex.Message);
         }
+
         return result;
     }
 
@@ -394,5 +406,6 @@ public static class DtwhSqlManager
             log.Error(ex, ex.Message);
         }
     }
+
     #endregion
 }

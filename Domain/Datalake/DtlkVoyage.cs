@@ -1,23 +1,33 @@
-﻿using System.Text.Json.Serialization;
-
-namespace GtfsDtlk_ToDtwh.Domain.Datalake;
+﻿namespace GtfsDtlk_ToDtwh.Domain.Datalake;
 
 public class DtlkVoyage
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DtlkVoyage" /> class.
+    /// </summary>
     public DtlkVoyage()
     {
-        Id = string.Empty;
-        LigneId = string.Empty;
-        ServiceId = string.Empty;
+        Id = 0;
+        LigneId = 0;
+        ServiceId = 0;
         LibelleAffichage = string.Empty;
         DirectionId = string.Empty;
         BlocId = string.Empty;
-        GraphicageId = string.Empty;
+        GraphicageId = 0;
     }
 
-    [JsonConstructor]
-    public DtlkVoyage(string id, string ligneId, string serviceId, string libelleAffichage, string directionId,
-        string blocId, string graphicageId)
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DtlkVoyage" /> class.
+    /// </summary>
+    /// <param name="id">The identifier.</param>
+    /// <param name="ligneId">The ligne identifier.</param>
+    /// <param name="serviceId">The service identifier.</param>
+    /// <param name="libelleAffichage">The libelle affichage.</param>
+    /// <param name="directionId">The direction identifier.</param>
+    /// <param name="blocId">The bloc identifier.</param>
+    /// <param name="graphicageId">The graphicage identifier.</param>
+    public DtlkVoyage(long id, long ligneId, long serviceId, string libelleAffichage, string directionId,
+        string blocId, long graphicageId)
     {
         Id = id;
         LigneId = ligneId;
@@ -28,16 +38,11 @@ public class DtlkVoyage
         GraphicageId = graphicageId;
     }
 
-    public string Id { get; set; }
-    public string LigneId { get; set; }
-    public string ServiceId { get; set; }
+    public long Id { get; set; }
+    public long LigneId { get; set; }
+    public long ServiceId { get; set; }
     public string LibelleAffichage { get; set; }
     public string DirectionId { get; set; }
     public string BlocId { get; set; }
-    public string GraphicageId { get; set; }
-
-
-    [JsonIgnore] public string Creer { get; set; }
-
-    [JsonIgnore] public string Modifier { get; set; }
+    public long GraphicageId { get; set; }
 }

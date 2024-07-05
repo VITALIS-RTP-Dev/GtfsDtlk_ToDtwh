@@ -1,11 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 
 namespace GtfsDtlk_ToDtwh.Domain.Datalake;
 
-public class DtlkLigne
+public class DtlkLigne : IEquatable<DtwhLigne>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DtlkLigne"/> class.
+    ///     Initializes a new instance of the <see cref="DtlkLigne" /> class.
     /// </summary>
     public DtlkLigne()
     {
@@ -20,7 +20,7 @@ public class DtlkLigne
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DtlkLigne"/> class.
+    ///     Initializes a new instance of the <see cref="DtlkLigne" /> class.
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <param name="agenceId">The agence identifier.</param>
@@ -52,4 +52,52 @@ public class DtlkLigne
     public string Couleur { get; set; }
     public string CouleurTexte { get; set; }
 
+    /// <summary>
+    /// Equalses the specified other.
+    /// </summary>
+    /// <param name="other">The other.</param>
+    /// <returns></returns>
+    protected bool Equals(DtlkLigne other)
+    {
+        return Id == other.Id && AgenceId == other.AgenceId && Libelle1 == other.Libelle1 && Libelle2 == other.Libelle2 && Description == other.Description && Type == other.Type && Couleur == other.Couleur && CouleurTexte == other.CouleurTexte;
+    }
+
+    /// <summary>
+    /// Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+    /// </returns>
+    public bool Equals(DtwhLigne other)
+    {
+        return Id == other.Code && Libelle1 == other.Libelle1 && Libelle2 == other.Libelle2 && Description == other.Description && Type == other.Type && Couleur == other.Couleur && CouleurTexte == other.CouleurTexte;
+
+    }
+
+    /// <summary>
+    /// Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((DtlkLigne)obj);
+    }
+
+    /// <summary>
+    /// Returns a hash code for this instance.
+    /// </summary>
+    /// <returns>
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// </returns>
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, AgenceId, Libelle1, Libelle2, Description, Type, Couleur, CouleurTexte);
+    }
 }

@@ -5,16 +5,7 @@ namespace GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 public class DtwhLigne
 {
     /// <summary>
-    /// Empties this instance.
-    /// </summary>
-    /// <returns></returns>
-    public static DtwhLigne Empty()
-    {
-        return new DtwhLigne(0,0, 0, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DtwhLigne"/> class.
+    ///     Initializes a new instance of the <see cref="DtwhLigne" /> class.
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <param name="ligneTypeId">The ligne type identifier.</param>
@@ -24,7 +15,8 @@ public class DtwhLigne
     /// <param name="type">The type.</param>
     /// <param name="couleur">The couleur.</param>
     /// <param name="couleurTexte">The couleur texte.</param>
-    public DtwhLigne(long id, long code,long ligneTypeId, string libelle1, string libelle2, string description, string type,
+    public DtwhLigne(long id, long code, long ligneTypeId, string libelle1, string libelle2, string description,
+        string type,
         string couleur, string couleurTexte)
     {
         Id = id;
@@ -49,19 +41,28 @@ public class DtwhLigne
     public string CouleurTexte { get; set; }
 
     /// <summary>
-    /// Compares and copy.
+    ///     Empties this instance.
+    /// </summary>
+    /// <returns></returns>
+    public static DtwhLigne Empty()
+    {
+        return new DtwhLigne(0, 0, 0, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
+            string.Empty);
+    }
+
+    /// <summary>
+    ///     Compares and copy.
     /// </summary>
     /// <param name="ligne">The ligne.</param>
     public void CompareAndCopy(DtlkLigne ligne)
     {
-        if (this.Code != ligne.Id) this.Code = ligne.Id;
-        if (this.LigneTypeId != ligne.AgenceId) this.LigneTypeId = ligne.AgenceId;
-        if (this.Libelle1 != ligne.Libelle1) this.Libelle1 = ligne.Libelle1;
-        if (this.Libelle2 != ligne.Libelle2) this.Libelle2 = ligne.Libelle2;
-        if (this.Description != ligne.Description) this.Description = ligne.Description;
-        if (this.Type != ligne.Type) this.Type = ligne.Type;
-        if (this.Couleur != ligne.Couleur) this.Couleur = ligne.Couleur;
-        if (this.CouleurTexte != ligne.CouleurTexte) this.CouleurTexte = ligne.CouleurTexte;
+        if (Code != ligne.Id) Code = ligne.Id;
+        if (LigneTypeId != ligne.AgenceId) LigneTypeId = ligne.AgenceId;
+        if (Libelle1 != ligne.Libelle1) Libelle1 = ligne.Libelle1;
+        if (Libelle2 != ligne.Libelle2) Libelle2 = ligne.Libelle2;
+        if (Description != ligne.Description) Description = ligne.Description;
+        if (Type != ligne.Type) Type = ligne.Type;
+        if (Couleur != ligne.Couleur) Couleur = ligne.Couleur;
+        if (CouleurTexte != ligne.CouleurTexte) CouleurTexte = ligne.CouleurTexte;
     }
-
 }
