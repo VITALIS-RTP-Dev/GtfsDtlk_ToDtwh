@@ -53,6 +53,24 @@ public class DtlkArret : IEquatable<DtwhArret>
     public long ParentArretId { get; set; }
 
     /// <summary>
+    ///     Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
+    public bool Equals(DtwhArret other)
+    {
+        return Id == other.Id &&
+               Libelle == other.Libelle &&
+               Description == other.Description &&
+               Latitude == other.Latitude &&
+               Longitude == other.Longitude &&
+               ParentArretId == other.ParentArretId;
+    }
+
+    /// <summary>
     ///     Empties this instance.
     /// </summary>
     /// <returns></returns>
@@ -62,47 +80,38 @@ public class DtlkArret : IEquatable<DtwhArret>
     }
 
     /// <summary>
-    /// Equalses the specified other.
+    ///     Equalses the specified other.
     /// </summary>
     /// <param name="other">The other.</param>
     /// <returns></returns>
     protected bool Equals(DtlkArret other)
     {
-        return Id == other.Id && Code == other.Code && Libelle == other.Libelle && Description == other.Description && Latitude == other.Latitude && Longitude == other.Longitude && Type == other.Type && ParentArretId == other.ParentArretId;
+        return Id == other.Id && Code == other.Code && Libelle == other.Libelle && Description == other.Description &&
+               Latitude == other.Latitude && Longitude == other.Longitude && Type == other.Type &&
+               ParentArretId == other.ParentArretId;
     }
 
     /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    public bool Equals(DtwhArret other)
-    {
-        return Id == other.Id && Code == other.Code && Libelle == other.Libelle && Description == other.Description && Latitude == other.Latitude && Longitude == other.Longitude && Type == other.Type && ParentArretId == other.ParentArretId;
-    }
-
-    /// <summary>
-    /// Determines whether the specified object is equal to the current object.
+    ///     Determines whether the specified object is equal to the current object.
     /// </summary>
     /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///     <see langword="true" /> if the specified object  is equal to the current object; otherwise,
+    ///     <see langword="false" />.
     /// </returns>
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((DtlkArret)obj);
     }
 
     /// <summary>
-    /// Returns a hash code for this instance.
+    ///     Returns a hash code for this instance.
     /// </summary>
     /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    ///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
     public override int GetHashCode()
     {

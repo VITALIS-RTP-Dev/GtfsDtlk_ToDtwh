@@ -1,6 +1,5 @@
 ﻿using System.Configuration;
 using System.Text;
-using GtfsDtlk_ToDtwh.Domain.Datalake;
 using GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 using GtfsDtlk_ToDtwh.Persistence;
 using Serilog;
@@ -80,31 +79,30 @@ public static class Program
             log.Information("Gestion des lignes types");
             // récupération de la liste du datalake et du datawarehouse
             var agencesFromDtlk = DtlkSqlManager.GetAllAgences(dtlkContext, log);
-            var ligneTypesFromDb = DtwhSqlManager.GetAllLigneTypes(dtwhContext, log);
+            var ligneTypesFromDb = DtwhSqlManager.GetAllReseaux(dtwhContext, log);
 
             foreach (var agenceFromDtlk in agencesFromDtlk)
             {
                 // check if exist in datawarehouse
-                var ligneTypeFromDb = ligneTypesFromDb.Find(x => x.Code.Equals(agenceFromDtlk.Id)) ?? DtwhLigneType.Empty();
+                var ligneTypeFromDb =
+                    ligneTypesFromDb.Find(x => x.Code.Equals(agenceFromDtlk.Id)) ?? DtwhReseau.Empty();
                 // if not exist > Create
                 if (ligneTypeFromDb.Id == 0)
                 {
                     // CREATE
-                    DtwhSqlManager.CreateLigneType(dtwhContext, log, agenceFromDtlk);
+                    DtwhSqlManager.CreateReseau(dtwhContext, log, agenceFromDtlk);
                 }
                 // if exist > Update
                 else
                 {
                     if (!agenceFromDtlk.Equals(ligneTypeFromDb))
-                    {
                         // UPDATE
-                        DtwhSqlManager.UpdateLigneType(dtwhContext, log, ligneTypeFromDb.Id, agenceFromDtlk);
-                    }
+                        DtwhSqlManager.UpdateReseau(dtwhContext, log, ligneTypeFromDb.Id, agenceFromDtlk);
                 }
             }
 
             // Reload Db
-            ligneTypesFromDb = DtwhSqlManager.GetAllLigneTypes(dtwhContext, log);
+            ligneTypesFromDb = DtwhSqlManager.GetAllReseaux(dtwhContext, log);
 
             //***** LIGNES *****//
             log.Information("Gestion des lignes");
@@ -115,21 +113,17 @@ public static class Program
             foreach (var ligneFromDtlk in lignesFromDtlk)
             {
                 // check if exist in datawarehouse
-                var ligneFromDb = lignesFromDb.Find(x => x.Code.Equals(ligneFromDtlk.Id)) ?? DtwhLigne.Empty();
+                var ligneFromDb = lignesFromDb.Find(x => x.Id == ligneFromDtlk.Id) ?? DtwhLigne.Empty();
                 // if not exist > Create
                 if (ligneFromDb.Id == 0)
                 {
-                    var ligneTypeId = ligneTypesFromDb.Find(x => x.Code.Equals(ligneFromDtlk.Id))!.Id;
                     // CREATE
-                    DtwhSqlManager.CreateLigne(dtwhContext, log, ligneFromDtlk, ligneTypeId);
+                    lignesFromDb.Add(DtwhSqlManager.CreateLigne(dtwhContext, log, ligneFromDtlk));
                 }
                 // if exist > Update
                 else
                 {
-                    if (!ligneFromDtlk.Equals(ligneFromDb))
-                    {
-                        DtwhSqlManager.UpdateLigne(dtwhContext, log, ligneFromDb.Id, ligneFromDb.LigneTypeId, ligneFromDtlk);
-                    }
+                    if (!ligneFromDtlk.Equals(ligneFromDb)) DtwhSqlManager.UpdateLigne(dtwhContext, log, ligneFromDtlk);
                 }
             }
 
@@ -141,45 +135,88 @@ public static class Program
             // récupération de la liste du datalake
             var arretsFromDtlk = DtlkSqlManager.GetAllArrets(dtlkContext, log);
             var arretsFromDb = DtwhSqlManager.GetAllArrets(dtwhContext, log);
+
             // boucle sur la liste du datalake
             foreach (var arretFromDtlk in arretsFromDtlk)
             {
-                var parentArretFromDtlk = arretsFromDtlk.Find(arret => arret.Id.Equals(arretFromDtlk.ParentArretId)) ??
-                                      DtlkArret.Empty();
-                var parentDtwhArret = arretsFromDb.Find(arret =>
-                    arret.Code.Equals(parentArretFromDtlk.Code, StringComparison.Ordinal)) ?? DtwhArret.Empty();
-
                 // check if exist in datawarehouse
-                var arretFromDb = arretsFromDb.Find(x => x.Code.Equals(arretFromDtlk.Code)) ?? DtwhArret.Empty();
+                var arretFromDb = arretsFromDb.Find(x => x.Id.Equals(arretFromDtlk.Id)) ?? DtwhArret.Empty();
+
                 // if not exist > Create
                 if (arretFromDb.Id == 0)
                 {
                     // CREATE
-                    arretsFromDb.Add(DtwhSqlManager.CreateArret(dtwhContext, log, arretFromDtlk, parentDtwhArret.Id));
+                    arretsFromDb.Add(DtwhSqlManager.CreateArret(dtwhContext, log, arretFromDtlk));
                 }
                 // if exist > Update
                 else
                 {
                     // UPDATE
-                    arretFromDb.CompareAndCopy(arretFromDtlk);
-                    arretFromDb.ParentArretId = parentDtwhArret.Id;
-                    DtwhSqlManager.UpdateArret(dtwhContext, log, arretFromDb);
+                    if (!arretFromDtlk.Equals(arretFromDb)) DtwhSqlManager.UpdateArret(dtwhContext, log, arretFromDtlk);
                 }
-
             }
-            // Manage Parents ID
 
+            // reload arret
+            arretsFromDb = DtwhSqlManager.GetAllArrets(dtwhContext, log);
 
-            //***** VOYAGE *****
+            //***** COURSE *****
             log.Information("Gestion des voyages");
             // récupération de la liste du datalake
-            var dtlkVoyages = DtlkSqlManager.GetAllVoyages(dtlkContext, log);
+            var voyagesFromDtlk = DtlkSqlManager.GetAllVoyages(dtlkContext, log);
+            var coursesFromDb = DtwhSqlManager.GetAllCourses(dtwhContext, log);
 
+            foreach (var voyageFromDtlk in voyagesFromDtlk)
+            {
+                // check if exist in datawarehouse
+                var courseFromDb = coursesFromDb.Find(x => x.Id.Equals(voyageFromDtlk.Id)) ?? DtwhCourse.Empty();
 
-            //***** HABILLAGE *****
+                // if not exist > Create
+                if (courseFromDb.Id == 0)
+                {
+                    // Recherche de la ligne
+                    if (lignesFromDb.Exists(x => x.Id.Equals(voyageFromDtlk.LigneId)))
+                        // CREATE
+                        coursesFromDb.Add(DtwhSqlManager.CreateCourse(dtwhContext, log, voyageFromDtlk));
+                }
+                // if exist > Update
+                else
+                {
+                    // UPDATE
+                    if (!voyageFromDtlk.Equals(courseFromDb))
+                        DtwhSqlManager.UpdateCourse(dtwhContext, log, voyageFromDtlk);
+                }
+            }
+
+            //***** STRUCTURE *****
             log.Information("Gestion des habillages");
             // récupération de la liste du datalake
-            var dtlkHabillages = DtlkSqlManager.GetAllHabillages(dtlkContext, log);
+            var habillagesFromDtlk = DtlkSqlManager.GetAllHabillages(dtlkContext, log);
+            var structuresFromDb = DtwhSqlManager.GetAllStructures(dtwhContext, log);
+
+            foreach (var habillageFromDtlk in habillagesFromDtlk)
+            {
+                var structureFromDb = structuresFromDb.Find(x => x.CourseId.Equals(habillageFromDtlk.VoyageId) &&
+                                                                 x.ArretId.Equals(habillageFromDtlk.ArretId) &&
+                                                                 x.Sequence.Equals(
+                                                                     Convert.ToInt32(habillageFromDtlk
+                                                                         .SequenceArret))) ?? DtwhStructure.Empty();
+                // if not exist > Create
+                if (structureFromDb.ArretId == 0)
+                {
+                    // Recherche de la course et de l'arret
+                    if (coursesFromDb.Exists(x => x.Id.Equals(habillageFromDtlk.VoyageId)) &&
+                        arretsFromDb.Exists(x => x.Id.Equals(habillageFromDtlk.ArretId)))
+                        // CREATE
+                        structuresFromDb.Add(DtwhSqlManager.CreateStructure(dtwhContext, log, habillageFromDtlk));
+                }
+                // if exist > Update
+                else
+                {
+                    // UPDATE
+                    if (!habillageFromDtlk.Equals(structureFromDb))
+                        DtwhSqlManager.UpdateStructure(dtwhContext, log, habillageFromDtlk);
+                }
+            }
         }
         catch (Exception ex)
         {

@@ -108,19 +108,28 @@ public static class DtlkSqlManager
         try
         {
             const string query =
-                "SELECT DISTINCT \"Voyage_Id\",\"Arret_Id\",\"Depart\",\"Arrivee\",\"Sequence_Arret\",\"Type_Montee\",\"Type_Descente\",\"Distance_Voyage\" FROM \"gtfs_habillage\";";
+                "SELECT " +
+                "\"Voyage_Id\"," +
+                "\"Arret_Id\"," +
+                "\"Depart\"," +
+                "\"Arrivee\"," +
+                "\"Sequence_Arret\"," +
+                "\"Type_Montee\"," +
+                "\"Type_Descente\"," +
+                "\"Distance_Voyage\" " +
+                "FROM \"gtfs_habillage\";";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
                 results.AddRange(rows.Select(row => new DtlkHabillage
                 {
                     VoyageId = Convert.ToInt64(row[0]),
                     ArretId = Convert.ToInt64(row[1]),
-                    Depart = TimeOnly.Parse(row[2]),
-                    Arrivee = TimeOnly.Parse(row[3]),
-                    SequenceArret = row[4],
-                    TypeMontee = row[5],
-                    TypeDescente = row[6],
-                    DistanceVoyage = row[7]
+                    Depart = row[2] ?? string.Empty,
+                    Arrivee = row[3] ?? string.Empty,
+                    SequenceArret = row[4] ?? string.Empty,
+                    TypeMontee = row[5] ?? string.Empty,
+                    TypeDescente = row[6] ?? string.Empty,
+                    DistanceVoyage = row[7] ?? string.Empty
                 }));
         }
         catch (Exception ex)
@@ -137,6 +146,12 @@ public static class DtlkSqlManager
 
     #region VOYAGE
 
+    /// <summary>
+    ///     Gets all voyages.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="log">The log.</param>
+    /// <returns></returns>
     public static List<DtlkVoyage> GetAllVoyages(PostgreSqlContext context, Logger log)
     {
         var results = new List<DtlkVoyage>();
@@ -166,7 +181,6 @@ public static class DtlkSqlManager
     }
 
     #endregion
-
 
     //***** ARRETS *****//
 
@@ -208,6 +222,13 @@ public static class DtlkSqlManager
         return results;
     }
 
+    /// <summary>
+    ///     Gets the arret by code.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="log">The log.</param>
+    /// <param name="code">The code.</param>
+    /// <returns></returns>
     public static DtlkArret GetArretByCode(PostgreSqlContext context, Logger log, string code)
     {
         var result = new DtlkArret();

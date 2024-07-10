@@ -5,10 +5,10 @@ namespace GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 /// <summary>
 ///     Classe of Datawarehouse object : Ligne Type
 /// </summary>
-public class DtwhLigneType
+public class DtwhReseau
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DtwhLigneType" /> class.
+    ///     Initializes a new instance of the <see cref="DtwhReseau" /> class.
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <param name="code">The code</param>
@@ -16,7 +16,7 @@ public class DtwhLigneType
     /// <param name="url">The URL.</param>
     /// <param name="timezone">The timezone.</param>
     /// <param name="telephone">The telephone.</param>
-    public DtwhLigneType(long id, long code, string nom, string url, string timezone, string telephone)
+    public DtwhReseau(long id, long code, string nom, string url, string timezone, string telephone)
     {
         Id = id;
         Code = code;
@@ -38,9 +38,9 @@ public class DtwhLigneType
     ///     Empties this instance.
     /// </summary>
     /// <returns></returns>
-    public static DtwhLigneType Empty()
+    public static DtwhReseau Empty()
     {
-        return new DtwhLigneType(0, 0, string.Empty, string.Empty, string.Empty, string.Empty);
+        return new DtwhReseau(0, 0, string.Empty, string.Empty, string.Empty, string.Empty);
     }
 
     /// <summary>

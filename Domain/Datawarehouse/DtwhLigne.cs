@@ -1,27 +1,38 @@
-﻿using GtfsDtlk_ToDtwh.Domain.Datalake;
-
-namespace GtfsDtlk_ToDtwh.Domain.Datawarehouse;
+﻿namespace GtfsDtlk_ToDtwh.Domain.Datawarehouse;
 
 public class DtwhLigne
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DtwhLigne" /> class.
     /// </summary>
+    public DtwhLigne()
+    {
+        Id = 0;
+        ReseauId = 0;
+        Libelle1 = string.Empty;
+        Libelle2 = string.Empty;
+        Description = string.Empty;
+        Type = 0;
+        Couleur = string.Empty;
+        CouleurTexte = string.Empty;
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DtwhLigne" /> class.
+    /// </summary>
     /// <param name="id">The identifier.</param>
-    /// <param name="ligneTypeId">The ligne type identifier.</param>
+    /// <param name="reseauId">The ligne type identifier.</param>
     /// <param name="libelle1">The libelle1.</param>
     /// <param name="libelle2">The libelle2.</param>
     /// <param name="description">The description.</param>
     /// <param name="type">The type.</param>
     /// <param name="couleur">The couleur.</param>
     /// <param name="couleurTexte">The couleur texte.</param>
-    public DtwhLigne(long id, long code, long ligneTypeId, string libelle1, string libelle2, string description,
-        string type,
+    public DtwhLigne(long id, long reseauId, string libelle1, string libelle2, string description, int type,
         string couleur, string couleurTexte)
     {
         Id = id;
-        Code = code;
-        LigneTypeId = ligneTypeId;
+        ReseauId = reseauId;
         Libelle1 = libelle1;
         Libelle2 = libelle2;
         Description = description;
@@ -31,12 +42,11 @@ public class DtwhLigne
     }
 
     public long Id { get; set; }
-    public long Code { get; set; }
-    public long LigneTypeId { get; set; }
+    public long ReseauId { get; set; }
     public string Libelle1 { get; set; }
     public string Libelle2 { get; set; }
     public string Description { get; set; }
-    public string Type { get; set; }
+    public int Type { get; set; }
     public string Couleur { get; set; }
     public string CouleurTexte { get; set; }
 
@@ -46,23 +56,6 @@ public class DtwhLigne
     /// <returns></returns>
     public static DtwhLigne Empty()
     {
-        return new DtwhLigne(0, 0, 0, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
-            string.Empty);
-    }
-
-    /// <summary>
-    ///     Compares and copy.
-    /// </summary>
-    /// <param name="ligne">The ligne.</param>
-    public void CompareAndCopy(DtlkLigne ligne)
-    {
-        if (Code != ligne.Id) Code = ligne.Id;
-        if (LigneTypeId != ligne.AgenceId) LigneTypeId = ligne.AgenceId;
-        if (Libelle1 != ligne.Libelle1) Libelle1 = ligne.Libelle1;
-        if (Libelle2 != ligne.Libelle2) Libelle2 = ligne.Libelle2;
-        if (Description != ligne.Description) Description = ligne.Description;
-        if (Type != ligne.Type) Type = ligne.Type;
-        if (Couleur != ligne.Couleur) Couleur = ligne.Couleur;
-        if (CouleurTexte != ligne.CouleurTexte) CouleurTexte = ligne.CouleurTexte;
+        return new DtwhLigne();
     }
 }
