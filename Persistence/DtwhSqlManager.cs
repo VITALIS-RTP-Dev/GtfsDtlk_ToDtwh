@@ -297,11 +297,11 @@ public static class DtwhSqlManager
     #region ARRETS
 
     /// <summary>
-    ///     Gets the arret by code.
+    /// Gets the arret by identifier.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="log">The log.</param>
-    /// <param name="code">The code.</param>
+    /// <param name="id">The identifier.</param>
     /// <returns></returns>
     public static DtwhArret GetArretById(PostgreSqlContext context, Logger log, long id)
     {
@@ -309,7 +309,7 @@ public static class DtwhSqlManager
         try
         {
             var query =
-                $"SELECT \"Id\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\" " +
+                $"SELECT \"Id\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\",\"Code\" " +
                 $"FROM \"reseau_arret\" WHERE \"Id\"='{id}' LIMIT 1;";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
@@ -322,6 +322,7 @@ public static class DtwhSqlManager
                     result.Longitude = row[4] ?? string.Empty;
                     result.Type = Convert.ToInt32(row[5]);
                     result.ParentArretId = Convert.ToInt64(row[6]);
+                    result.Code = row[7] ?? string.Empty;
                 }
         }
         catch (Exception ex)
@@ -344,7 +345,7 @@ public static class DtwhSqlManager
         try
         {
             const string query =
-                "SELECT \"Id\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\" " +
+                "SELECT \"Id\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\",\"Code\" " +
                 "FROM \"reseau_arret\";";
             var rows = context.SelectQuery(query, log).Result;
             if (rows.Count != 0)
@@ -356,7 +357,8 @@ public static class DtwhSqlManager
                     Latitude = row[3] ?? string.Empty,
                     Longitude = row[4] ?? string.Empty,
                     Type = Convert.ToInt32(row[5]),
-                    ParentArretId = Convert.ToInt64(row[6])
+                    ParentArretId = Convert.ToInt64(row[6]),
+                    Code = row[7] ?? string.Empty
                 }));
         }
         catch (Exception ex)
@@ -380,14 +382,15 @@ public static class DtwhSqlManager
         try
         {
             var query =
-                $"INSERT INTO \"reseau_arret\"(\"Id\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\") " +
+                $"INSERT INTO \"reseau_arret\"(\"Id\",\"Libelle\",\"Description\",\"Latitude\",\"Longitude\",\"Type\",\"Parent_Arret_Id\",\"Code\") " +
                 $"VALUES('{arret.Id}'," +
                 $"'{arret.Libelle.Replace("'", "''")}'," +
                 $"'{arret.Description.Replace("'", "''")}'," +
                 $"'{arret.Latitude}'," +
                 $"'{arret.Longitude}'," +
                 $"'{arret.Type}'," +
-                $"'{arret.ParentArretId}');";
+                $"'{arret.ParentArretId}'," +
+                $"'{arret.Code}');";
 
             context.CommandQuery(query, log);
             log.Information($"Création de l'arret {arret.Id} - {arret.Code}");
@@ -418,7 +421,8 @@ public static class DtwhSqlManager
                         $"\"Type\"='{arret.Type}'," +
                         $"\"Parent_Arret_Id\"='{arret.ParentArretId}'," +
                         $"\"Latitude\"='{arret.Latitude.Replace("'", "''")}'," +
-                        $"\"Longitude\"='{arret.Longitude.Replace("'", "''")}' WHERE \"Id\" = {arret.Id};";
+                        $"\"Longitude\"='{arret.Longitude.Replace("'", "''")}'," +
+                        $"\"Code\"='{arret.Code.Replace("'", "''")}' WHERE \"Id\" = {arret.Id};";
 
             context.CommandQuery(query, log);
             log.Information($"Mise à jour de l'arret {arret.Code} - {arret.Libelle}");

@@ -63,6 +63,7 @@ public class DtlkArret : IEquatable<DtwhArret>
     public bool Equals(DtwhArret other)
     {
         return Id == other.Id &&
+               Code == other.Code &&
                Libelle == other.Libelle &&
                Description == other.Description &&
                Latitude == other.Latitude &&
